@@ -1045,28 +1045,6 @@ function setupMobileLayout() {
       .mobile-hide-panel #bPanel { display: none !important; }
       .mobile-hide-preview .b-preview { display: none !important; }
 
-      /* Hamburger Header */
-      #mobHeader {
-        display: flex; justify-content: flex-start; align-items: center; gap: 16px;
-        padding: 12px 20px; background: var(--bg-panel, #ffffff); 
-        border-bottom: 1px solid var(--border, #dddddd);
-        position: sticky; top: 0; z-index: 9998;
-      }
-      .dark #mobHeader { background: #1a1a1a; border-bottom: 1px solid #333; }
-      
-      /* Fullscreen menu overlay */
-      #mobMenuOverlay {
-        display: none; position: fixed; top: 51px; left: 0; right: 0; bottom: 0;
-        background: var(--bg-panel, #fff); z-index: 9999; flex-direction: column; padding: 20px;
-      }
-      .dark #mobMenuOverlay { background: #1a1a1a; }
-      #mobMenuOverlay.active { display: flex; }
-      .mob-menu-link {
-        padding: 16px; font-size: 16px; font-weight: 600; border-bottom: 1px solid var(--border, #ddd);
-        color: var(--ink, #111); text-decoration: none; cursor: pointer;
-      }
-      .dark .mob-menu-link { color: #eee; border-color: #333; }
-
       /* Floating Back to Editor button (only shows when preview is active) */
       #mobBackToEdit {
          display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
@@ -1083,32 +1061,10 @@ function setupMobileLayout() {
       .mobile-step-nav button { padding: 12px 16px; font-size: 13.5px; }
     }
     @media (min-width: 769px) { 
-      #mobHeader, #mobMenuOverlay, #mobBackToEdit, .mobile-step-nav { display: none !important; } 
+      #mobBackToEdit, .mobile-step-nav { display: none !important; } 
     }
   `;
   document.head.appendChild(style);
-
-  // Inject Header & Hamburger
-  const header = document.createElement('div');
-  header.id = 'mobHeader';
-  header.innerHTML = `
-    <div id="mobHamburger" style="font-size:24px;cursor:pointer;line-height:1;color:var(--ink, #111);">☰</div>
-    <div style="font-weight:800;font-size:18px;color:var(--primary, #2454c7);">ResumeAI</div>
-  `;
-  document.body.appendChild(header);
-
-  // Inject Menu Overlay
-  const overlay = document.createElement('div');
-  overlay.id = 'mobMenuOverlay';
-  overlay.innerHTML = `
-    <div class="mob-menu-link" onclick="toggleMobMenu(); goLanding();">🏠 Home</div>
-    <div class="mob-menu-link" onclick="toggleMobMenu(); goDashboard(); createResume();">📝 Create Resume</div>
-    <div class="mob-menu-link" onclick="toggleMobMenu(); alert('FAQs coming soon!');">❓ FAQs</div>
-    <div class="mob-menu-link" onclick="toggleMobMenu(); goLanding(); setTimeout(() => document.getElementById('tplShowcase').scrollIntoView({behavior:'smooth'}), 100);">🎨 Templates</div>
-  `;
-  document.body.appendChild(overlay);
-
-  document.getElementById('mobHamburger').onclick = toggleMobMenu;
 
   // Inject floating back to editor button for Preview mode
   const backBtn = document.createElement('button');
@@ -1117,10 +1073,6 @@ function setupMobileLayout() {
   backBtn.onclick = () => window.mobileNextStep(activeSectionUI, false);
   document.body.appendChild(backBtn);
 }
-
-window.toggleMobMenu = function() {
-  document.getElementById('mobMenuOverlay').classList.toggle('active');
-};
 
 // Hook into existing goBuilder function to reset mobile view to the editor wizard
 const originalGoBuilder = window.goBuilder;

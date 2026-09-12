@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ResumeAI — Build a resume that gets noticed.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&family=Poppins:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600;700&family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Playfair+Display:wght@500;700&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+:root{
+  --ink:#14171f; --ink-soft:#4a4f5c; --paper:#fbfaf8; --panel:#ffffff;
+  --border:#e6e3dc; --accent:#4b5fd1; --accent-ink:#ffffff; --success:#2e9e6d; --warn:#c97a2b; --danger:#c2453b;
+  --shadow:0 1px 2px rgba(20,23,31,.04), 0 8px 24px -12px rgba(20,23,31,.12);
+  --radius:10px;
+  --font-ui:'Inter',sans-serif; --font-display:'Fraunces',serif;
+}
+body.dark{
+  --ink:#eceef3; --ink-soft:#a9adba; --paper:#12141a; --panel:#1a1d25;
+  --border:#2a2e38; --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:var(--font-ui);background:var(--paper);color:var(--ink);transition:background .2s,color .2s;}
+button{font-family:inherit;cursor:pointer;}
+a{color:inherit;}
+input,textarea,select{font-family:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:9px 11px;font-size:14px;width:100%;}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px;}
+label{font-size:12.5px;font-weight:600;color:var(--ink-soft);display:block;margin-bottom:5px;letter-spacing:.01em;}
+.field{margin-bottom:14px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.btn{border:1px solid var(--border);background:var(--panel);color:var(--ink);padding:9px 15px;border-radius:8px;font-size:13.5px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:transform .1s,border-color .15s;}
+.btn:hover{border-color:var(--ink-soft);}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);}
+.btn-primary:hover{filter:brightness(1.08);}
+.btn-ghost{background:transparent;border-color:transparent;}
+.btn-sm{padding:6px 10px;font-size:12.5px;}
+.btn-danger{color:var(--danger);}
+.hidden{display:none !important;}
+::-webkit-scrollbar{width:9px;height:9px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:6px;}
+
+/* ---------- LANDING ---------- */
+#view-landing{max-width:1180px;margin:0 auto;padding:0 24px;}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:22px 0;}
+.logo{font-family:var(--font-display);font-weight:600;font-size:21px;letter-spacing:-.01em;display:flex;align-items:center;gap:8px;}
+.logo .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);}
+.navlinks{display:flex;gap:28px;font-size:14px;color:var(--ink-soft);}
+.navlinks a{text-decoration:none;}
+.navlinks a:hover{color:var(--ink);}
+.navcta{display:flex;gap:10px;}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center;padding:64px 0 90px;}
+.hero h1{font-family:var(--font-display);font-size:52px;line-height:1.08;margin:0 0 18px;font-weight:600;letter-spacing:-.015em;}
+.hero p{font-size:16.5px;color:var(--ink-soft);line-height:1.6;max-width:480px;margin:0 0 28px;}
+.hero .ctas{display:flex;gap:12px;}
+.mockcard{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:26px 30px;transform:rotate(1.2deg);position:relative;}
+.mockcard::before{content:"";position:absolute;inset:14px;border:1px solid var(--border);border-radius:10px;opacity:.5;pointer-events:none;}
+.mockline{height:9px;background:var(--border);border-radius:4px;margin:10px 0;animation:pulse 3.2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+.mockline.w60{width:60%}.mockline.w80{width:80%}.mockline.w40{width:40%}.mockline.w90{width:90%}
+.mockhead{display:flex;gap:14px;align-items:center;margin-bottom:18px;}
+.mockavatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#8c98e6);}
+section.landing-sec{padding:70px 0;border-top:1px solid var(--border);}
+.sec-eyebrow{font-size:13px;color:var(--accent);font-weight:700;margin-bottom:8px;}
+.sec-title{font-family:var(--font-display);font-size:30px;font-weight:600;margin:0 0 34px;letter-spacing:-.01em;}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.fcard{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px;}
+.fcard h3{font-size:15px;margin:10px 0 6px;}
+.fcard p{font-size:13.5px;color:var(--ink-soft);margin:0;line-height:1.5;}
+.ficon{width:34px;height:34px;border-radius:8px;background:color-mix(in srgb, var(--accent) 14%, transparent);display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:16px;}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.step{position:relative;padding-top:6px;}
+.step .n{font-family:var(--font-display);font-size:26px;color:var(--accent);font-weight:600;}
+.step h4{margin:6px 0 4px;font-size:14.5px;}
+.step p{font-size:13px;color:var(--ink-soft);margin:0;}
+.testi{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.tcard{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px;font-size:13.5px;}
+.tcard .who{margin-top:14px;font-weight:700;font-size:13px;}
+.tcard .role{color:var(--ink-soft);font-size:12px;}
+.faq-item{border-bottom:1px solid var(--border);padding:16px 0;}
+.faq-item summary{cursor:pointer;font-weight:600;font-size:14.5px;list-style:none;display:flex;justify-content:space-between;}
+.faq-item summary::-webkit-details-marker{display:none;}
+.faq-item p{color:var(--ink-soft);font-size:13.5px;margin:10px 0 0;line-height:1.55;}
+footer{border-top:1px solid var(--border);padding:36px 0 44px;display:flex;justify-content:space-between;align-items:flex-start;font-size:13px;color:var(--ink-soft);}
+footer .flinks{display:flex;gap:18px;}
+.tplshow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.tplmini{border:1px solid var(--border);border-radius:8px;background:var(--panel);overflow:hidden;aspect-ratio:3/4;padding:10px;font-size:5px;}
+.tplmini .name{font-size:10px;text-align:center;color:var(--ink-soft);margin-top:6px;font-family:var(--font-ui);}
+
+/* ---------- APP CHROME ---------- */
+#view-dashboard,#view-builder{display:none;}
+.appbar{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-bottom:1px solid var(--border);background:var(--panel);}
+.appbar .left{display:flex;align-items:center;gap:16px;}
+.dash-wrap{max-width:1080px;margin:0 auto;padding:36px 24px 60px;}
+.dash-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px;}
+.dash-head h1{font-family:var(--font-display);font-size:26px;margin:0;}
+.reslist{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.rescard{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:box-shadow .15s,transform .15s;cursor:pointer;}
+.rescard:hover{box-shadow:var(--shadow);transform:translateY(-2px);}
+.rescard .thumb{height:130px;background:var(--paper);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--ink-soft);font-size:11px;}
+.rescard .body{padding:14px 16px;}
+.rescard h4{margin:0 0 4px;font-size:14.5px;}
+.rescard .meta{font-size:12px;color:var(--ink-soft);}
+.rescard .acts{display:flex;gap:6px;padding:0 16px 14px;flex-wrap:wrap;}
+.newcard{border:1.5px dashed var(--border);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--ink-soft);min-height:230px;}
+.newcard:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ---------- BUILDER ---------- */
+.builder{display:grid;grid-template-columns:250px 1fr 1fr;height:calc(100vh - 57px);}
+.b-sidebar{border-right:1px solid var(--border);overflow-y:auto;padding:14px 10px;background:var(--panel);}
+.navitem{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-size:13.5px;color:var(--ink-soft);cursor:pointer;font-weight:600;}
+.navitem:hover{background:var(--paper);color:var(--ink);}
+.navitem.active{background:color-mix(in srgb, var(--accent) 12%, transparent);color:var(--accent);}
+.navitem .ic{width:18px;text-align:center;}
+.b-panel{overflow-y:auto;padding:22px 26px;border-right:1px solid var(--border);}
+.panel-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.panel-h h2{font-size:17px;margin:0;font-family:var(--font-display);}
+.entry{border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px;background:var(--panel);position:relative;}
+.entry-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.entry-top .tag{font-size:11.5px;color:var(--ink-soft);font-weight:700;}
+.iconbtn{border:1px solid var(--border);background:var(--panel);width:28px;height:28px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:var(--ink-soft);}
+.iconbtn:hover{color:var(--ink);}
+.chk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink);}
+.chk input{width:auto;}
+.tabs{display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--border);}
+.tab{padding:9px 4px;font-size:13px;font-weight:600;color:var(--ink-soft);border-bottom:2px solid transparent;margin-right:14px;cursor:pointer;}
+.tab.active{color:var(--accent);border-color:var(--accent);}
+.swatch{width:26px;height:26px;border-radius:50%;border:2px solid transparent;cursor:pointer;display:inline-block;}
+.swatch.active{border-color:var(--ink);}
+.swrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.skillbar-outer{height:6px;background:var(--border);border-radius:4px;overflow:hidden;}
+.skillbar-inner{height:100%;background:var(--accent);}
+.scorebox{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:16px;}
+.scorebox .big{font-family:var(--font-display);font-size:28px;font-weight:600;}
+.progress{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:4px;}
+.progress > div{height:100%;background:var(--success);}
+.suggestion{font-size:12.5px;color:var(--ink-soft);padding:6px 0;border-top:1px solid var(--border);}
+
+/* ---------- PREVIEW ---------- */
+.b-preview{overflow-y:auto;background:var(--paper);display:flex;flex-direction:column;align-items:center;padding:24px 16px 60px;}
+.preview-toolbar{position:sticky;top:0;background:var(--paper);z-index:5;display:flex;gap:8px;align-items:center;padding:6px 0 14px;width:100%;justify-content:center;}
+.page{background:#fff;color:#111;width:210mm;min-height:297mm;box-shadow:0 2px 14px rgba(0,0,0,.14);margin-bottom:20px;transform-origin:top center;}
+#saveState{font-size:12px;color:var(--ink-soft);}
+
+/* toast */
+#toastHost{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:999;}
+.toast{background:var(--ink);color:var(--paper);padding:11px 16px;border-radius:8px;font-size:13px;box-shadow:var(--shadow);animation:slidein .2s ease;}
+@keyframes slidein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(10,10,14,.45);display:flex;align-items:flex-start;justify-content:center;padding-top:12vh;z-index:200;}
+.modal{background:var(--panel);border-radius:12px;width:560px;max-width:92vw;box-shadow:var(--shadow);border:1px solid var(--border);}
+.cp-input{border:none;border-bottom:1px solid var(--border);border-radius:0;padding:16px;font-size:15px;}
+.cp-list{max-height:320px;overflow-y:auto;padding:8px;}
+.cp-item{padding:10px 12px;border-radius:8px;font-size:14px;display:flex;justify-content:space-between;cursor:pointer;}
+.cp-item:hover,.cp-item.sel{background:var(--paper);}
+.cp-item kbd{font-size:11px;color:var(--ink-soft);}
+
+/* template gallery */
+.tplgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.tplcard{border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;background:var(--panel);}
+.tplcard.active{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent);}
+.tplcard .thumb{height:150px;background:var(--paper);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.tplcard .thumb .page{transform:scale(.26);width:210mm;min-height:297mm;box-shadow:none;pointer-events:none;}
+.tplcard .lbl{padding:8px 10px;font-size:12.5px;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
+.filterrow{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.chip{padding:6px 12px;border-radius:20px;border:1px solid var(--border);font-size:12.5px;font-weight:600;color:var(--ink-soft);cursor:pointer;}
+.chip.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+
+@media print{
+  body *{visibility:hidden;}
+  #printRoot,#printRoot *{visibility:visible;}
+  #printRoot{position:absolute;top:0;left:0;width:100%;}
+  .page{box-shadow:none !important;margin:0 !important;}
+}
+@media (max-width:980px){
+  .hero{grid-template-columns:1fr;}
+  .grid4{grid-template-columns:repeat(2,1fr);}
+  .steps{grid-template-columns:repeat(2,1fr);}
+  .testi{grid-template-columns:1fr;}
+  .reslist{grid-template-columns:repeat(2,1fr);}
+  .builder{grid-template-columns:1fr;}
+  .b-sidebar{display:none;}
+  .b-preview{display:none;}
+  .navlinks{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div id="toastHost"></div>
+
+<!-- ================= LANDING ================= -->
+<div id="view-landing">
+  <div class="nav">
+    <div class="logo"><span class="dot"></span>ResumeAI</div>
+    <div class="navlinks">
+      <a href="#features">Features</a><a href="#templates">Templates</a><a href="#how">How It Works</a><a href="#faq">FAQ</a>
+    </div>
+    <div class="navcta">
+      <button class="btn btn-ghost" onclick="toast('Login is a demo action — no account needed, jump right into the builder.')">Login</button>
+      <button class="btn btn-primary" onclick="goDashboard()">Create Resume</button>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div>
+      <h1>Build a resume that<br>gets noticed.</h1>
+      <p>ResumeAI helps you write, design and export a professional resume with real-time preview, 8 distinct templates, and an ATS score that tells you exactly what to fix — all saved locally in your browser.</p>
+      <div class="ctas">
+        <button class="btn btn-primary" onclick="goDashboard()">Create My Resume →</button>
+        <button class="btn" onclick="document.getElementById('templates').scrollIntoView({behavior:'smooth'})">Explore Templates</button>
+      </div>
+    </div>
+    <div class="mockcard">
+      <div class="mockhead"><div class="mockavatar"></div><div style="flex:1"><div class="mockline w60"></div><div class="mockline w40"></div></div></div>
+      <div class="mockline w90"></div><div class="mockline w80"></div><div class="mockline w60"></div>
+      <div style="height:14px"></div>
+      <div class="mockline w40"></div><div class="mockline w90"></div><div class="mockline w80"></div>
+    </div>
+  </div>
+
+  <section class="landing-sec" id="features">
+    <div class="sec-eyebrow">Features</div>
+    <h2 class="sec-title">Everything a good resume needs</h2>
+    <div class="grid4" id="featGrid"></div>
+  </section>
+
+  <section class="landing-sec" id="templates">
+    <div class="sec-eyebrow">Templates</div>
+    <h2 class="sec-title">Eight genuinely different layouts</h2>
+    <div class="tplshow" id="tplShowcase"></div>
+  </section>
+
+  <section class="landing-sec" id="how">
+    <div class="sec-eyebrow">Process</div>
+    <h2 class="sec-title">How it works</h2>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><h4>Enter your information</h4><p>Fill in experience, education and skills in a guided editor.</p></div>
+      <div class="step"><div class="n">2</div><h4>Choose your template</h4><p>Switch instantly between 8 distinct designs without losing data.</p></div>
+      <div class="step"><div class="n">3</div><h4>Customize your design</h4><p>Fonts, colors, spacing and section order — all live.</p></div>
+      <div class="step"><div class="n">4</div><h4>Download your resume</h4><p>Export a print-ready PDF or your raw data as JSON.</p></div>
+    </div>
+  </section>
+
+  <section class="landing-sec">
+    <div class="sec-eyebrow">Testimonials</div>
+    <h2 class="sec-title">People who found the job</h2>
+    <div class="testi">
+      <div class="tcard">"I rewrote my resume in twenty minutes and the ATS score caught two sections I'd forgotten entirely."<div class="who">Amara Osei</div><div class="role">Product Designer</div></div>
+      <div class="tcard">"Switched templates three times before an interview and never lost a single word of my data."<div class="who">Daniyal Raza</div><div class="role">Backend Engineer</div></div>
+      <div class="tcard">"The Sidebar template made my clinical rotations easy to scan. Recruiter mentioned it in the interview."<div class="who">Priya Nathan</div><div class="role">Registered Nurse</div></div>
+    </div>
+  </section>
+
+  <section class="landing-sec" id="faq">
+    <div class="sec-eyebrow">FAQ</div>
+    <h2 class="sec-title">Common questions</h2>
+    <details class="faq-item" open><summary>Is my data stored anywhere online? <span>+</span></summary><p>No — everything is saved to your browser's local storage. Nothing is uploaded anywhere.</p></details>
+    <details class="faq-item"><summary>Can I export my data and move it elsewhere? <span>+</span></summary><p>Yes. Use Export JSON in Settings to download a full backup, and Import JSON to restore it.</p></details>
+    <details class="faq-item"><summary>Does the PDF actually preserve my template? <span>+</span></summary><p>Yes — the PDF export renders the exact template, fonts and colors you see in the live preview.</p></details>
+    <details class="faq-item"><summary>Can I build more than one resume? <span>+</span></summary><p>Yes — create, duplicate, rename and delete as many resumes as you like from your dashboard.</p></details>
+  </section>
+
+  <footer>
+    <div>
+      <div class="logo"><span class="dot"></span>ResumeAI</div>
+      <div style="margin-top:6px;">Created by Muhammad Sulieman Khan</div>
+      <div style="margin-top:2px;">© 2026 ResumeAI</div>
+    </div>
+    <div class="flinks"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Contact</a><a href="#">GitHub</a></div>
+  </footer>
+</div>
+
+<!-- ================= DASHBOARD ================= -->
+<div id="view-dashboard">
+  <div class="appbar">
+    <div class="left"><div class="logo" style="cursor:pointer" onclick="goLanding()"><span class="dot"></span>ResumeAI</div></div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <button class="btn btn-ghost btn-sm" onclick="toggleDark()">🌓 Theme</button>
+      <label class="btn btn-sm" style="margin:0;">Import JSON<input type="file" accept="application/json" style="display:none" onchange="importJSON(event)"></label>
+      <button class="btn btn-primary" onclick="createResume()">+ New Resume</button>
+    </div>
+  </div>
+  <div class="dash-wrap">
+    <div class="dash-head"><h1>My Resumes</h1></div>
+    <div class="reslist" id="resList"></div>
+  </div>
+</div>
+
+<!-- ================= BUILDER ================= -->
+<div id="view-builder">
+  <div class="appbar">
+    <div class="left">
+      <div class="logo" style="cursor:pointer" onclick="goDashboard()"><span class="dot"></span>ResumeAI</div>
+      <span id="saveState">Saved</span>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="btn btn-sm" onclick="openCommandPalette()">⌘K Commands</button>
+      <button class="btn btn-sm" onclick="undo()" title="Ctrl+Z">↶ Undo</button>
+      <button class="btn btn-sm" onclick="redo()" title="Ctrl+Shift+Z">↷ Redo</button>
+      <button class="btn btn-sm" onclick="toggleDark()">🌓</button>
+      <button class="btn btn-sm" onclick="doPrint()">Print</button>
+      <button class="btn btn-primary btn-sm" onclick="downloadPDF()">⬇ Download PDF</button>
+    </div>
+  </div>
+  <div class="builder">
+    <div class="b-sidebar" id="bSidebar"></div>
+    <div class="b-panel" id="bPanel"></div>
+    <div class="b-preview">
+      <div class="preview-toolbar">
+        <button class="iconbtn" onclick="zoom(-0.08)">−</button>
+        <span id="zoomLabel" style="font-size:12px;color:var(--ink-soft);width:44px;text-align:center;">100%</span>
+        <button class="iconbtn" onclick="zoom(0.08)">+</button>
+        <button class="btn btn-sm" onclick="fitZoom()">Fit to screen</button>
+        <span style="flex:1"></span>
+        <span id="atsMini" class="btn btn-sm" style="pointer-events:none;"></span>
+      </div>
+      <div id="pageWrap"><div class="page" id="page"></div></div>
+    </div>
+  </div>
+</div>
+
+<div id="printRoot" style="display:none;"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

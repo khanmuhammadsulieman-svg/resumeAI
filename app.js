@@ -1047,7 +1047,7 @@ function setupMobileLayout() {
 
       /* Hamburger Header */
       #mobHeader {
-        display: flex; justify-content: space-between; align-items: center;
+        display: flex; justify-content: flex-start; align-items: center; gap: 16px;
         padding: 12px 20px; background: var(--bg-panel, #ffffff); 
         border-bottom: 1px solid var(--border, #dddddd);
         position: sticky; top: 0; z-index: 9998;
@@ -1092,8 +1092,8 @@ function setupMobileLayout() {
   const header = document.createElement('div');
   header.id = 'mobHeader';
   header.innerHTML = `
+    <div id="mobHamburger" style="font-size:24px;cursor:pointer;line-height:1;color:var(--ink, #111);">☰</div>
     <div style="font-weight:800;font-size:18px;color:var(--primary, #2454c7);">ResumeAI</div>
-    <div id="mobHamburger" style="font-size:26px;cursor:pointer;line-height:1;color:var(--ink, #111);">☰</div>
   `;
   document.body.appendChild(header);
 

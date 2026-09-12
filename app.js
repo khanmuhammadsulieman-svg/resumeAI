@@ -238,12 +238,23 @@ function renderSidebar(){
   });
 }
 
-/* ---------------- panel (forms) ---------------- */
+/* ---------------- panel (forms) & mobile step nav ---------------- */
+window.mobileNextStep = function(targetId, isDesign) {
+  activeSectionUI = targetId;
+  renderSidebar();
+  renderPanel();
+  if(isDesign) {
+    toast('Details complete! Choose a template below, then tap Preview.');
+  }
+};
+
 function renderPanel(){
   const p = document.getElementById('bPanel');
   const r = activeResume();
   if(!r) return;
   p.innerHTML='';
+  p.scrollTop = 0; // Auto-scroll to top when moving to next step
+  
   const renderers = {
     personal: panelPersonal, summary: panelSummary, experience: ()=>panelList('experience'),
     education: ()=>panelList('education'), skills: panelSkills, projects: ()=>panelList('projects'),
@@ -251,6 +262,35 @@ function renderPanel(){
     references: ()=>panelList('references'), custom: panelCustom, design: panelDesign, ats: panelATS, settings: panelSettings
   };
   (renderers[activeSectionUI]||panelPersonal)();
+
+  // Inject Sequential Navigation for Mobile
+  const currentIdx = SECTIONS.findIndex(s => s.id === activeSectionUI);
+  if(currentIdx !== -1) {
+    const prev = SECTIONS[currentIdx - 1];
+    const next = SECTIONS[currentIdx + 1];
+    const navWrap = document.createElement('div');
+    navWrap.className = 'mobile-step-nav';
+    let html = `<div style="display:flex; justify-content:space-between; margin-top:30px; padding-top:15px; border-top:1px solid var(--border);">`;
+    
+    if(prev) {
+      html += `<button class="btn" onclick="mobileNextStep('${prev.id}', false)">← Back</button>`;
+    } else {
+      html += `<div></div>`;
+    }
+
+    if(next) {
+      if(next.id === 'design') {
+         html += `<button class="btn btn-primary" onclick="mobileNextStep('${next.id}', true)">Next: Template →</button>`;
+      } else {
+         html += `<button class="btn btn-primary" onclick="mobileNextStep('${next.id}', false)">Next: ${next.label} →</button>`;
+      }
+    } else {
+      html += `<div></div>`;
+    }
+    html += `</div>`;
+    navWrap.innerHTML = html;
+    p.appendChild(navWrap);
+  }
 }
 
 function h(html){ const t=document.createElement('div'); t.innerHTML=html; return t.firstElementChild; }
@@ -989,7 +1029,7 @@ function setupMobileLayout() {
       }
       #mobileNav button.active { color: var(--primary, #2454c7); }
       
-      /* Fix scrolling cut-offs for long forms like Languages/Skills */
+      /* Fix scrolling cut-offs and enable Wizard */
       #view-builder { padding-bottom: 60px; display: flex; flex-direction: column; }
       #bPanel, #bSidebar { 
         overflow-y: auto !important; 
@@ -998,8 +1038,15 @@ function setupMobileLayout() {
         flex: none; 
       }
       .b-preview { width: 100% !important; overflow-x: auto; padding: 10px; }
+      
+      /* Mobile Step Navigation */
+      .mobile-step-nav { display: block; padding-bottom: 20px; }
+      .mobile-step-nav button { padding: 12px 16px; font-size: 13.5px; }
     }
-    @media (min-width: 769px) { #mobileNav { display: none !important; } }
+    @media (min-width: 769px) { 
+      #mobileNav { display: none !important; } 
+      .mobile-step-nav { display: none !important; }
+    }
   `;
   document.head.appendChild(style);
 
@@ -1049,7 +1096,7 @@ window.setMobileMode = function(mode) {
 const originalGoBuilder = window.goBuilder;
 window.goBuilder = function(id) {
   originalGoBuilder(id);
-  if(window.innerWidth <= 768) setMobileMode('menu'); 
+  if(window.innerWidth <= 768) setMobileMode('edit'); // Jump straight to edit wizard
 };
 
 // Initialize mobile modifications

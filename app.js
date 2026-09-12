@@ -240,6 +240,20 @@ function renderSidebar(){
 
 /* ---------------- panel (forms) & mobile step nav ---------------- */
 window.mobileNextStep = function(targetId, isDesign) {
+  // Mobile Preview Override
+  if (targetId === 'mobile_preview') {
+    const vb = document.getElementById('view-builder');
+    vb.classList.remove('mobile-hide-preview');
+    vb.classList.add('mobile-hide-panel', 'mobile-hide-sidebar');
+    setTimeout(fitZoom, 50);
+    return;
+  }
+  
+  // Normal Navigation
+  const vb = document.getElementById('view-builder');
+  vb.classList.add('mobile-hide-preview', 'mobile-hide-sidebar');
+  vb.classList.remove('mobile-hide-panel');
+  
   activeSectionUI = targetId;
   renderSidebar();
   renderPanel();
@@ -285,9 +299,16 @@ function renderPanel(){
          html += `<button class="btn btn-primary" onclick="mobileNextStep('${next.id}', false)">Next: ${next.label} →</button>`;
       }
     } else {
-      html += `<div></div>`;
+      // Final tab (Settings) - replace Next with Preview button
+      html += `<button class="btn btn-primary" onclick="mobileNextStep('mobile_preview', false)">See Final Preview 👁</button>`;
     }
     html += `</div>`;
+    
+    // Add an extra quick-preview button to the top of the design section for mobile convenience
+    if(activeSectionUI === 'design') {
+       html = `<button class="btn btn-primary" style="width:100%; margin-bottom:15px;" onclick="mobileNextStep('mobile_preview', false)">👁 See Live Preview</button>` + html;
+    }
+    
     navWrap.innerHTML = html;
     p.appendChild(navWrap);
   }
@@ -742,7 +763,7 @@ function renderTemplate(r, tid){
   if(v.website && r.personal.website) contactBits.push(r.personal.website);
   if(v.linkedin && r.personal.linkedin) contactBits.push(r.personal.linkedin);
   if(v.github && r.personal.github) contactBits.push(r.personal.github);
-  const photoHTML = (v.photo && r.photo) ? `<img src="${r.photo}" style="width:64px;height:64px;border-radius:50%;object-fit:cover;">` : '';
+  const photoHTML = (v.photo && r.photo) ? `<img src="${r.photo}" style="width:64px;height:64px;border-radius:50%;object-fit:cover;flex-shrink:0;">` : '';
 
   const skillStyleByTpl = {classic:'text',minimal:'text',executive:'bars',sidebar:'bars',timeline:'tags',swiss:'dots',compact:'text',creative:'tags'};
   const sections = buildSectionsHTML(r, {skillStyle: skillStyleByTpl[tid]||'text', color});
@@ -765,20 +786,26 @@ function renderTemplate(r, tid){
 
   if(tid==='minimal'){
     return `<div style="${base}">
-      <div style="margin-bottom:${r.design.sectionSpacing+6}px;">
-        <div style="font-size:26px;font-weight:600;letter-spacing:-.01em;">${esc(r.personal.fullName)}</div>
-        <div style="font-size:13px;color:${color};margin-top:2px;">${esc(r.personal.title)}</div>
-        <div style="font-size:10px;color:#777;margin-top:8px;">${contactBits.join('   ·   ')}</div>
+      <div style="margin-bottom:${r.design.sectionSpacing+6}px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-size:26px;font-weight:600;letter-spacing:-.01em;">${esc(r.personal.fullName)}</div>
+          <div style="font-size:13px;color:${color};margin-top:2px;">${esc(r.personal.title)}</div>
+          <div style="font-size:10px;color:#777;margin-top:8px;">${contactBits.join('   ·   ')}</div>
+        </div>
+        ${photoHTML?`<div>${photoHTML}</div>`:''}
       </div>
       ${order.map(k=>sectionBlock(k,'simple')).join('')}
     </div>`;
   }
   if(tid==='executive'){
     return `<div style="${base}padding:0;">
-      <div style="background:${color};color:#fff;padding:${margin}mm ${margin}mm 20px;">
-        <div style="font-size:26px;font-weight:700;">${esc(r.personal.fullName)}</div>
-        <div style="font-size:13px;opacity:.9;margin-top:2px;">${esc(r.personal.title)}</div>
-        <div style="font-size:10px;opacity:.85;margin-top:10px;">${contactBits.join('   ·   ')}</div>
+      <div style="background:${color};color:#fff;padding:${margin}mm ${margin}mm 20px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-size:26px;font-weight:700;">${esc(r.personal.fullName)}</div>
+          <div style="font-size:13px;opacity:.9;margin-top:2px;">${esc(r.personal.title)}</div>
+          <div style="font-size:10px;opacity:.85;margin-top:10px;">${contactBits.join('   ·   ')}</div>
+        </div>
+        ${photoHTML?`<div style="border:2px solid #fff;border-radius:50%;overflow:hidden;width:64px;height:64px;">${photoHTML.replace('style="','style="width:100%;height:100%;')}</div>`:''}
       </div>
       <div style="padding:20px ${margin}mm ${margin}mm;">
         ${order.map(k=>sectionBlock(k,'rule')).join('')}
@@ -812,6 +839,7 @@ function renderTemplate(r, tid){
     </div>`).join('');
     return `<div style="${base}">
       <div style="text-align:center;margin-bottom:${r.design.sectionSpacing+8}px;">
+        ${photoHTML?`<div style="margin-bottom:12px;display:flex;justify-content:center;">${photoHTML}</div>`:''}
         <div style="font-size:25px;font-weight:700;">${esc(r.personal.fullName)}</div>
         <div style="font-size:13px;color:${color};">${esc(r.personal.title)}</div>
         <div style="font-size:10px;color:#777;margin-top:8px;">${contactBits.join('   ·   ')}</div>
@@ -825,7 +853,10 @@ function renderTemplate(r, tid){
   if(tid==='swiss'){
     return `<div style="${base}">
       <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;border-bottom:3px solid #111;padding-bottom:14px;margin-bottom:${r.design.sectionSpacing}px;">
-        <div><div style="font-size:30px;font-weight:600;letter-spacing:-.02em;line-height:1;">${esc(r.personal.fullName)}</div><div style="font-size:12px;color:${color};margin-top:6px;">${esc(r.personal.title)}</div></div>
+        <div style="display:flex;align-items:center;gap:15px;">
+          ${photoHTML?`<div>${photoHTML}</div>`:''}
+          <div><div style="font-size:30px;font-weight:600;letter-spacing:-.02em;line-height:1;">${esc(r.personal.fullName)}</div><div style="font-size:12px;color:${color};margin-top:6px;">${esc(r.personal.title)}</div></div>
+        </div>
         <div style="font-size:9.5px;font-family:'JetBrains Mono',monospace;color:#555;line-height:1.9;text-align:right;">${contactBits.join('<br>')}</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 2fr;gap:26px;">
@@ -837,7 +868,10 @@ function renderTemplate(r, tid){
   if(tid==='compact'){
     return `<div style="${base}font-size:10px;">
       <div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid #ccc;padding-bottom:8px;margin-bottom:12px;">
-        <div><span style="font-size:17px;font-weight:700;">${esc(r.personal.fullName)}</span> <span style="font-size:11px;color:${color};">— ${esc(r.personal.title)}</span></div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          ${photoHTML?`<div style="width:36px;height:36px;border-radius:50%;overflow:hidden;">${photoHTML.replace('width:64px;height:64px;','width:100%;height:100%;')}</div>`:''}
+          <div><span style="font-size:17px;font-weight:700;">${esc(r.personal.fullName)}</span> <span style="font-size:11px;color:${color};">— ${esc(r.personal.title)}</span></div>
+        </div>
         <div style="font-size:9px;color:#666;">${contactBits.join(' · ')}</div>
       </div>
       ${order.map(k=>`<div style="margin-bottom:10px;"><div style="font-size:10.5px;font-weight:700;color:${color};border-bottom:1px solid #ddd;padding-bottom:2px;margin-bottom:5px;">${SECTION_TITLES[k]}</div>${sections[k]}</div>`).join('')}
@@ -857,6 +891,7 @@ function renderTemplate(r, tid){
   // classic (default)
   return `<div style="${base}">
     <div style="text-align:center;border-bottom:2px solid #222;padding-bottom:12px;margin-bottom:${r.design.sectionSpacing}px;">
+      ${photoHTML?`<div style="margin-bottom:10px;display:flex;justify-content:center;">${photoHTML}</div>`:''}
       <div style="font-family:'${r.design.font==='Inter'?'Playfair Display':r.design.font}',serif;font-size:24px;font-weight:700;letter-spacing:.02em;">${esc(r.personal.fullName)}</div>
       <div style="font-size:12.5px;color:${color};margin-top:3px;">${esc(r.personal.title)}</div>
       <div style="font-size:10px;color:#666;margin-top:8px;">${contactBits.join('   |   ')}</div>
@@ -1001,102 +1036,101 @@ buildLandingExtras();
 showView('landing'); 
 
 /* ---------------- Mobile Responsive Layout ---------------- */
-let mobileViewMode = 'menu';
-
 function setupMobileLayout() {
-  // 1. Inject Mobile CSS directly via JS
   const style = document.createElement('style');
   style.textContent = `
     @media (max-width: 768px) {
-      /* Hide elements based on active tab */
+      /* Hide elements based on mode */
       .mobile-hide-sidebar #bSidebar { display: none !important; }
       .mobile-hide-panel #bPanel { display: none !important; }
       .mobile-hide-preview .b-preview { display: none !important; }
 
-      /* Bottom Navigation Bar */
-      #mobileNav {
-        display: flex; position: fixed; bottom: 0; left: 0; right: 0;
-        background: var(--bg-panel, #ffffff); border-top: 1px solid var(--border, #dddddd);
-        z-index: 9999; justify-content: space-around; padding: 10px 0;
-        box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+      /* Hamburger Header */
+      #mobHeader {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 12px 20px; background: var(--bg-panel, #ffffff); 
+        border-bottom: 1px solid var(--border, #dddddd);
+        position: sticky; top: 0; z-index: 9998;
       }
-      .dark #mobileNav { background: #1a1a1a; border-top: 1px solid #333; }
+      .dark #mobHeader { background: #1a1a1a; border-bottom: 1px solid #333; }
       
-      #mobileNav button {
-        background: none; border: none; font-size: 12px; font-weight: 600;
-        color: var(--ink-soft, #666); cursor: pointer; 
-        display: flex; flex-direction: column; align-items: center; gap: 4px;
+      /* Fullscreen menu overlay */
+      #mobMenuOverlay {
+        display: none; position: fixed; top: 51px; left: 0; right: 0; bottom: 0;
+        background: var(--bg-panel, #fff); z-index: 9999; flex-direction: column; padding: 20px;
       }
-      #mobileNav button.active { color: var(--primary, #2454c7); }
-      
-      /* Fix scrolling cut-offs and enable Wizard */
-      #view-builder { padding-bottom: 60px; display: flex; flex-direction: column; }
-      #bPanel, #bSidebar { 
-        overflow-y: auto !important; 
-        height: calc(100vh - 130px) !important; 
-        width: 100% !important; 
-        flex: none; 
+      .dark #mobMenuOverlay { background: #1a1a1a; }
+      #mobMenuOverlay.active { display: flex; }
+      .mob-menu-link {
+        padding: 16px; font-size: 16px; font-weight: 600; border-bottom: 1px solid var(--border, #ddd);
+        color: var(--ink, #111); text-decoration: none; cursor: pointer;
       }
-      .b-preview { width: 100% !important; overflow-x: auto; padding: 10px; }
+      .dark .mob-menu-link { color: #eee; border-color: #333; }
+
+      /* Floating Back to Editor button (only shows when preview is active) */
+      #mobBackToEdit {
+         display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+         background: var(--primary, #2454c7); color: #fff; padding: 12px 24px;
+         border-radius: 30px; font-weight: 700; z-index: 9999; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      }
+      #view-builder:not(.mobile-hide-preview) #mobBackToEdit { display: block; }
       
-      /* Mobile Step Navigation */
+      /* Layout Adjustments */
+      #view-builder { padding-bottom: 20px; display: flex; flex-direction: column; }
+      #bPanel, #bSidebar { overflow-y: auto !important; height: calc(100vh - 55px) !important; width: 100% !important; flex: none; }
+      .b-preview { width: 100% !important; padding: 10px; margin-bottom: 60px; overflow-x: auto; }
       .mobile-step-nav { display: block; padding-bottom: 20px; }
       .mobile-step-nav button { padding: 12px 16px; font-size: 13.5px; }
     }
     @media (min-width: 769px) { 
-      #mobileNav { display: none !important; } 
-      .mobile-step-nav { display: none !important; }
+      #mobHeader, #mobMenuOverlay, #mobBackToEdit, .mobile-step-nav { display: none !important; } 
     }
   `;
   document.head.appendChild(style);
 
-  // 2. Inject Bottom Navigation HTML
-  const nav = document.createElement('div');
-  nav.id = 'mobileNav';
-  nav.innerHTML = `
-    <button onclick="setMobileMode('menu')" id="mobBtn-menu"><span style="font-size:18px">☰</span> Sections</button>
-    <button onclick="setMobileMode('edit')" id="mobBtn-edit"><span style="font-size:18px">✎</span> Edit</button>
-    <button onclick="setMobileMode('preview')" id="mobBtn-preview"><span style="font-size:18px">👁</span> Preview</button>
+  // Inject Header & Hamburger
+  const header = document.createElement('div');
+  header.id = 'mobHeader';
+  header.innerHTML = `
+    <div style="font-weight:800;font-size:18px;color:var(--primary, #2454c7);">ResumeAI</div>
+    <div id="mobHamburger" style="font-size:26px;cursor:pointer;line-height:1;color:var(--ink, #111);">☰</div>
   `;
-  document.body.appendChild(nav);
-  
-  // 3. Auto-switch to "Edit" tab when a sidebar section is clicked on mobile
-  const bSidebar = document.getElementById('bSidebar');
-  if(bSidebar) {
-    bSidebar.addEventListener('click', (e) => {
-      if(e.target.closest('.navitem') && window.innerWidth <= 768) {
-        setMobileMode('edit');
-      }
-    });
-  }
+  document.body.appendChild(header);
+
+  // Inject Menu Overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'mobMenuOverlay';
+  overlay.innerHTML = `
+    <div class="mob-menu-link" onclick="toggleMobMenu(); goLanding();">🏠 Home</div>
+    <div class="mob-menu-link" onclick="toggleMobMenu(); goDashboard(); createResume();">📝 Create Resume</div>
+    <div class="mob-menu-link" onclick="toggleMobMenu(); alert('FAQs coming soon!');">❓ FAQs</div>
+    <div class="mob-menu-link" onclick="toggleMobMenu(); goLanding(); setTimeout(() => document.getElementById('tplShowcase').scrollIntoView({behavior:'smooth'}), 100);">🎨 Templates</div>
+  `;
+  document.body.appendChild(overlay);
+
+  document.getElementById('mobHamburger').onclick = toggleMobMenu;
+
+  // Inject floating back to editor button for Preview mode
+  const backBtn = document.createElement('button');
+  backBtn.id = 'mobBackToEdit';
+  backBtn.innerHTML = '✎ Back to Editor';
+  backBtn.onclick = () => window.mobileNextStep(activeSectionUI, false);
+  document.body.appendChild(backBtn);
 }
 
-// 4. Tab Switching Logic
-window.setMobileMode = function(mode) {
-  mobileViewMode = mode;
-  const vb = document.getElementById('view-builder');
-  if(!vb) return;
-  
-  vb.classList.remove('mobile-hide-sidebar', 'mobile-hide-panel', 'mobile-hide-preview');
-  
-  if(mode === 'menu') vb.classList.add('mobile-hide-panel', 'mobile-hide-preview');
-  if(mode === 'edit') vb.classList.add('mobile-hide-sidebar', 'mobile-hide-preview');
-  if(mode === 'preview') {
-    vb.classList.add('mobile-hide-sidebar', 'mobile-hide-panel');
-    setTimeout(fitZoom, 50); // Recalculate zoom when preview un-hides
-  }
-  
-  ['menu', 'edit', 'preview'].forEach(m => {
-    const btn = document.getElementById('mobBtn-'+m);
-    if(btn) btn.classList.toggle('active', m === mode);
-  });
-}
+window.toggleMobMenu = function() {
+  document.getElementById('mobMenuOverlay').classList.toggle('active');
+};
 
-// 5. Hook into the existing goBuilder function to reset mobile view
+// Hook into existing goBuilder function to reset mobile view to the editor wizard
 const originalGoBuilder = window.goBuilder;
 window.goBuilder = function(id) {
   originalGoBuilder(id);
-  if(window.innerWidth <= 768) setMobileMode('edit'); // Jump straight to edit wizard
+  if(window.innerWidth <= 768) {
+     const vb = document.getElementById('view-builder');
+     vb.classList.remove('mobile-hide-panel');
+     vb.classList.add('mobile-hide-sidebar', 'mobile-hide-preview');
+  }
 };
 
 // Initialize mobile modifications
